@@ -1,0 +1,44 @@
+device_type: qemu
+job_name: qemu arm64 health check
+
+timeouts:
+  job:
+    minutes: 15
+  action:
+    minutes: 5
+  connection:
+    minutes: 3
+
+priority: medium
+visibility: public
+
+context:
+  arch: arm64
+  machine: virt
+  netdevice: user
+  cpu: cortex-a57
+  extra_options:
+  - -smp
+  - 1
+
+actions:
+- deploy:
+    timeout:
+      minutes: 5
+    to: tmpfs
+    images:
+      kernel:
+        image_arg: -kernel {kernel} --append 'root=/dev/ram0 rw rootwait rootdelay=5 console=ttyAMA0,38400n8 init=/sbin/init'
+        url: ${KERNEL_URL}
+      initrd:
+        image_arg: -initrd {initrd}
+        url: ${INITRD_URL}
+
+- boot:
+    method: qemu
+    media: tmpfs
+    timeout:
+      minutes: 2
+    prompts:
+    - '\(initramfs\)'
+

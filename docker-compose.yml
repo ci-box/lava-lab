@@ -18,6 +18,7 @@ services:
       - "8080:80" # expose http to outside
     volumes:
       - ./overlays/lava-server/etc/lava-server/dispatcher-config/devices:/etc/lava-server/dispatcher-config/devices
+      - ./overlays/lava-server/etc/lava-server/dispatcher-config/health-checks:/etc/lava-server/dispatcher-config/health-checks
 
 # LAVA worker0 (for testing) instance inheriting from ci-box-lava-worker
   lava-worker0:
