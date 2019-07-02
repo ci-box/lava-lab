@@ -4,3 +4,6 @@
 [submodule "ci-box-lava-master"]
 	path = ci-box-lava-master
 	url = https://github.com/ci-box/ci-box-lava-master
+[submodule "ci-box-fileserver"]
+	path = ci-box-fileserver
+	url = https://github.com/ci-box/ci-box-fileserver
