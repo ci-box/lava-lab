@@ -1,0 +1,31 @@
+version: '2'
+
+services:
+
+# LAVA server (for testing) instance inheriting from ci-box-lava-master
+  lava-server:
+    container_name: lava-server
+    hostname: lava-server
+    extends:
+      file: ./ci-box-lava-master/docker-compose.yml
+      service: lava-server
+    build:
+      args:
+        admin_username: admin
+        admin_password: password
+        workers: lava_worker0
+    ports:
+      - "8080:80" # expose http to outside
+    volumes:
+      - ./overlays/lava-server/etc/lava-server/dispatcher-config/devices:/etc/lava-server/dispatcher-config/devices
+
+# LAVA worker0 (for testing) instance inheriting from ci-box-lava-worker
+  lava-worker0:
+    container_name: lava_worker0
+    hostname: lava_worker0
+    extends:
+      file: ./ci-box-lava-worker/docker-compose.yml
+      service: lava-worker
+    build:
+      args:
+        server: lava-server
