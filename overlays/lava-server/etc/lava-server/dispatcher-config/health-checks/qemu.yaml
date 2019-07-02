@@ -29,16 +29,19 @@ actions:
     images:
       kernel:
         image_arg: -kernel {kernel} --append 'root=/dev/ram0 rw rootwait rootdelay=5 console=ttyAMA0,38400n8 init=/sbin/init'
-        url: ${KERNEL_URL}
+        url: http://fileserver/images-healthcheck/qemu/Image.gz
+        compression: gz
       initrd:
         image_arg: -initrd {initrd}
-        url: ${INITRD_URL}
+        url: http://fileserver/images-healthcheck/qemu/rootfs.cpio.gz
 
 - boot:
     method: qemu
     media: tmpfs
     timeout:
       minutes: 2
+    auto_login:
+      login_prompt: "login:"
+      username: root
     prompts:
-    - '\(initramfs\)'
-
+    - 'micro#'
