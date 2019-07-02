@@ -30,3 +30,20 @@ services:
     build:
       args:
         server: lava-server
+
+# File Server (FTP/HTPP) to store artifacts (images, test templates...)
+  fileserver:
+    container_name: fileserver
+    hostname: fileserver
+    extends:
+      file: ./ci-box-fileserver/docker-compose.yml
+      service: fileserver
+    build:
+      args:
+        http_port: 80
+        ftp_port: 21
+        root: "/wwwroot"
+    ports: # expose http to outside
+      - "8081:80"
+    volumes:
+      - ./overlays/fileserver/wwwroot:/wwwroot
