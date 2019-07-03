@@ -1,5 +1,5 @@
 # lava-lab
-Simple Lava lab recipe to generate a basic Lava lab instance with a Qemu device
+Simple Lava lab recipe to generate a basic Lava lab instance with a Qemu and Dragonboard-410c device
 
 The instance is composed of docker containers, a lava-server (lava_server), lava-dispatcher (lava_worker0) and a file-server (fileserver).
 - The lava-server (master) shcedules the test jobs, administers devices ands stores the results
@@ -14,10 +14,10 @@ The instance is composed of docker containers, a lava-server (lava_server), lava
     | lava_server | | lava_worker0 | | fileserver |
     |             | |              | |            |
      -------------   --------------   ------------
-                           |
-                           |
-                           |
-                     [qemu-device-1]
+                      |         |
+                      |         |
+                      |         |
+          [qemu-device_1]      [dragonboard-410c_1]
 
 
 ## Prerequisite
