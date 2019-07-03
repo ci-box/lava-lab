@@ -30,6 +30,14 @@ services:
     build:
       args:
         server: lava-server
+        extra_packages: "microcom"
+    volumes:
+      - /dev/bus/usb:/dev/bus/usb
+      - ./overlays/lava-worker/usr/bin/lxc-create:/usr/bin/lxc-create
+      - ./overlays/lava-worker/usr/bin/ftdi-connect:/usr/bin/ftdi-connect
+    privileged: true
+    #devices:
+    #  - /dev/bus/usb:/dev/bus/usb
 
 # File Server (FTP/HTPP) to store artifacts (images, test templates...)
   fileserver:

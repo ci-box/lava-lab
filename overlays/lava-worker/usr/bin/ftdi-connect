@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Usage ftdi-connect by USB-FTDI_SERIAL (iSerial in lsusb output)
+
+if [ "$#" -ne 1 ]; then
+	echo "usage: $0 <ftdi_serial> <usb-ftdi-serialno>"
+	exit -1
+fi
+
+# Find ftdi sysfs path
+USB_DEVICES=$(find -L /sys/bus/usb/devices/ -maxdepth 3 -name "serial" 2> /dev/null)
+for i in ${USB_DEVICES}; do
+	SERIAL=$(cat $i)
+	if [ ${SERIAL} = $1 ]; then
+		FTDI=$(dirname "$i")
+		break
+	fi
+done
+
+if [ -z ${FTDI} ]; then
+	echo "FTDI with serial '$1' not found!"
+	exit 1
+fi
+
+echo "Found FTDI at ${FTDI}"
+
+TTY=`find ${FTDI}/* -name ttyUSB* | tail -n1`
+TTY=`basename ${TTY}`
+rm /var/lock/LCK..${TTY}
+microcom -p /dev/${TTY} -s 115200
+
+exit 0
