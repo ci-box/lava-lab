@@ -32,9 +32,15 @@ services:
         server: lava-server
         extra_packages: "microcom"
     volumes:
+      # used for fastboot
       - /dev/bus/usb:/dev/bus/usb
+      # lava-lxc-create mocker with arg fixed
       - ./overlays/lava-worker/usr/bin/lxc-create:/usr/bin/lxc-create
+      # To connect USB serial by serial number
       - ./overlays/lava-worker/usr/bin/ftdi-connect:/usr/bin/ftdi-connect
+      # libguestfs/supermin
+      - /boot:/boot:ro
+      - /lib/modules:/lib/modules:ro
     privileged: true
     #devices:
     #  - /dev/bus/usb:/dev/bus/usb
