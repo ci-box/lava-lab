@@ -37,8 +37,8 @@ services:
         server: lava-server
         extra_packages: "microcom"
     volumes:
-      # used for fastboot
-      - /dev/bus/usb:/dev/bus/usb
+      # used for fastboot and ftdi
+      - /dev:/dev
       # lava-lxc-create mocker with arg fixed
       - ./overlays/lava-worker/usr/bin/lxc-create:/usr/bin/lxc-create
       # To connect USB serial by serial number
@@ -62,7 +62,7 @@ services:
         admin_username: admin
         admin_password: password
         group: "Linaro"
-        projects: "Linux-master Android-master Zephyr-master"
+        projects: "openembedded-rpb-410c Android-master Zephyr-master"
         # Lava test execution backend
         lava_server: lava.server
         lava_username: admin
@@ -70,7 +70,7 @@ services:
     ports: # expose http to outside
       - "8081:80"
 
-# File Server (FTP/HTPP) to store artifacts (images, test templates...)
+# File Server (FTP/HTTP) to store artifacts (images, test templates...)
   fileserver:
     container_name: fileserver
     hostname: fileserver
@@ -86,3 +86,22 @@ services:
       - "8082:80"
     volumes:
       - ./overlays/fileserver/wwwroot:/wwwroot
+
+# Jenkins (for building) instance inheriting from ci-box-jenkins
+  jenkins:
+    container_name: jenkins
+    hostname: jenkins
+    extends:
+      file: ./ci-box-jenkins/docker-compose.yml
+      service: jenkins
+    build:
+      args:
+        admin_username: admin
+        admin_password: password
+        http_port: 8080
+        extra_packages: "build-essential gcc-aarch64-linux-gnu bc lava-tool ftp gettext-base"
+        plugins: "git mailer git-parameter build-timeout publish-over-ftp"
+    ports:
+      - "8089:8080"
+    volumes:
+      - ./overlays/jenkins/var/jenkins_home/jobs:/var/jenkins_home/jobs
