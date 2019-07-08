@@ -1,0 +1,71 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command># don&apos;t build here, just test existing images
+
+SQUAD_SERVER=squad
+SQUAD_BACKEND=lava.server
+SQUAD_TOKEN=ce739e4825717c96465aa0dc63b0458a76fe9a8e
+SQUAD_GROUP=Linaro
+SQUAD_PROJECT=openembedded-rpb-db410c
+FILESERVER=fileserver
+LAVA_JOB_TEMPLATE_URL=http://${FILESERVER}/job-templates/dragonboard410c-openembedded.yaml
+BOOTIMG_URL=https://releases.linaro.org/96boards/dragonboard410c/linaro/openembedded/latest/rpb/boot--4.14-r0-dragonboard-410c-20190130223248-110-110.img
+ROOTFS_URL=https://releases.linaro.org/96boards/dragonboard410c/linaro/openembedded/latest/rpb/rpb-console-image-test-dragonboard-410c-20190130223248-110.rootfs.img.gz
+VERSION=110
+
+if [ ! -f &quot;boot-${VERSION}.img&quot; ]; then
+	wget ${BOOTIMG_URL} -O &quot;boot-${VERSION}.img&quot;
+else
+	echo &quot;boot-${VERSION}.img already exists, skip download&quot;
+fi
+
+if [ ! -f &quot;rootfs-${VERSION}.img&quot; ]; then
+	wget ${ROOTFS_URL} -O &quot;rootfs-${VERSION}.img&quot;
+else
+	echo &quot;rootfs-${VERSION}.img already exists, skip download&quot;
+fi
+
+# Push images to artifact server
+ftp -n &lt;&lt;EOF
+open ${FILESERVER}
+user anonymous
+put boot-${VERSION}.img images/dragonboard-410c/OE/boot-${VERSION}.img
+put rootfs-${VERSION}.img images/dragonboard-410c/OE/rootfs-${VERSION}.img.gz
+EOF
+
+# Retrieve lava job template
+wget ${LAVA_JOB_TEMPLATE_URL} -O lava_job_template.yaml
+
+
+# Substitute with build info
+export TEST_BOOT_URL=http://${FILESERVER}/images/dragonboard-410c/OE/boot-${VERSION}.img
+export TEST_ROOTFS_URL=http://${FILESERVER}/images/dragonboard-410c/OE/rootfs-${VERSION}.img
+export VERSION=${VERSION}
+envsubst &lt; lava_job_template.yaml &gt; lava_job.yaml
+
+LAVA_JOB_DEFINITION=$(cat lava_job.yaml)
+
+# Submit to squad
+curl \
+    --header &quot;Auth-Token: ${SQUAD_TOKEN}&quot; \
+    --form backend=${SQUAD_BACKEND} \
+    --form definition=&quot;${LAVA_JOB_DEFINITION}&quot; \
+    http://${SQUAD_SERVER}/api/submitjob/${SQUAD_GROUP}/${SQUAD_PROJECT}/${VERSION}/jenkins</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
