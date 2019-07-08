@@ -10,3 +10,6 @@
 [submodule "ci-box-squad"]
 	path = ci-box-squad
 	url = https://github.com/ci-box/ci-box-squad
+[submodule "ci-box-jenkins"]
+	path = ci-box-jenkins
+	url = https://github.com/ci-box/ci-box-jenkins
