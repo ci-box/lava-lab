@@ -26,6 +26,15 @@ The instance is composed of docker containers, a lava-server (lava_server), lava
 - docker
 - docker-compose
 
+## Customize for your hardware (dragonboard-410c)
+
+The qemu device is handled out of the box, but testing on real hardware like dragonboard-410c requests a bit of configuration.
+Indeed, in order to allows Lava to communicate with your DUT and control its power, you need to edit the device definition: ./overlays/lava-server/etc/lava-server/dispatcher-config/devices/dragonboard-410c_1@lava_worker0.jinja2
+
+1. Define the power commands (e.g. to control relays, pdu...)
+2. Define the connection command (to get serial/debug link with the board)
+3. Define the board fastboot serial number (to detect and flash board)
+
 ## Create and Start instance
 
     make
@@ -34,10 +43,12 @@ or if your user is not part of `docker` group:
 
     sudo make
 
+
 ## Play
 
 If you run command locally you can then access the Lava web user interface at localhost:8080
-Since this instance defines a Qemu device and Qemu health-check job, you will see the health check job scheduled and executed.
+Since this instance defines a Qemu device and Qemu health-check job, you will see the health
+check job scheduled and executed, same applies for the dragonboard 410c.
 
 That's all! you can now submit your own jobs (https://validation.linaro.org/static/docs/v2/explain_first_job.html)
 
