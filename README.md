@@ -1,19 +1,20 @@
 # lava-lab
 Simple Lava lab recipe to generate a basic Lava lab instance with a Qemu and Dragonboard-410c device
 
-The instance is composed of docker containers, a lava-server (lava_server), lava-dispatcher (lava_worker0) and a file-server (fileserver).
+The instance is composed of docker containers, a lava-server (lava_server), lava-dispatcher (lava_worker0), squad, and a file-server (fileserver).
 - The lava-server (master) shcedules the test jobs, administers devices ands stores the results
 - The lava-dispatcher (worker) deploys software (images) on connected devices, and processes the test jobs
 - The file-server store artifacts (e.g. images to test, test templates, etc...)
+- The squad container is for Software Quality Dashboard
 
 <!-- language: lang-none -->
-    --------------------------------------------------- Network
-           |                |               |
-     -------------   --------------   ------------
-    |             | |              | |            |
-    | lava_server | | lava_worker0 | | fileserver |
-    |             | |              | |            |
-     -------------   --------------   ------------
+    -------------------------------------------------------------------- Network
+           |                |               |                   |
+     -------------   --------------   ------------        -------------
+    |             | |              | |            |      |             |
+    | lava_server | | lava_worker0 | | fileserver |      |    squad    |
+    |             | |              | |            |      |             |
+     -------------   --------------   ------------        -------------
                       |         |
                       |         |
                       |         |

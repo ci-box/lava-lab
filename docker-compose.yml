@@ -13,6 +13,7 @@ services:
       args:
         admin_username: admin
         admin_password: password
+        admin_token: "d0siRzClNHWNtUYJbpmjOPEyPp0QLCKqQtDGTftN"
         workers: lava_worker0
     ports:
       - "8080:80" # expose http to outside
@@ -45,6 +46,26 @@ services:
     #devices:
     #  - /dev/bus/usb:/dev/bus/usb
 
+# SQUAD - Software Quality Dashboard
+  squad:
+    container_name: squad
+    hostname: squad
+    extends:
+      file: ./ci-box-squad/docker-compose.yml
+      service: squad
+    build:
+      args:
+        admin_username: admin
+        admin_password: password
+        group: "Linaro"
+        projects: "Linux-master Android-master Zephyr-master"
+        # Lava backend
+        lava_server: lava-server
+        lava_username: admin
+        lava_token: "d0siRzClNHWNtUYJbpmjOPEyPp0QLCKqQtDGTftN"
+    ports: # expose http to outside
+      - "8081:80"
+
 # File Server (FTP/HTPP) to store artifacts (images, test templates...)
   fileserver:
     container_name: fileserver
@@ -58,6 +79,6 @@ services:
         ftp_port: 21
         root: "/wwwroot"
     ports: # expose http to outside
-      - "8081:80"
+      - "8082:80"
     volumes:
       - ./overlays/fileserver/wwwroot:/wwwroot
