@@ -15,6 +15,10 @@ services:
         admin_password: password
         admin_token: "d0siRzClNHWNtUYJbpmjOPEyPp0QLCKqQtDGTftN"
         workers: lava_worker0
+    networks:
+      default:
+        aliases:
+          - lava.server
     ports:
       - "8080:80" # expose http to outside
     volumes:
@@ -59,8 +63,8 @@ services:
         admin_password: password
         group: "Linaro"
         projects: "Linux-master Android-master Zephyr-master"
-        # Lava backend
-        lava_server: lava-server
+        # Lava test execution backend
+        lava_server: lava.server
         lava_username: admin
         lava_token: "d0siRzClNHWNtUYJbpmjOPEyPp0QLCKqQtDGTftN"
     ports: # expose http to outside
