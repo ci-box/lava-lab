@@ -1,0 +1,143 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command># don&apos;t build here, just test existing images to speed up demo
+
+SQUAD_SERVER=squad
+SQUAD_BACKEND=lava.server
+SQUAD_TOKEN=61f4fc3868688c42e7f15dc4ba1734a789ec0e8f
+SQUAD_GROUP=Linaro
+SQUAD_PROJECT=linux-qcomlt
+FILESERVER=fileserver
+LAVA_JOB_TEMPLATE_URL=http://${FILESERVER}/job-templates/dragonboard410c-linux.yaml
+
+#1 Test kernel 4.9.56
+BOOTIMG_URL=https://releases.linaro.org/96boards/dragonboard410c/linaro/debian/17.09/boot-linaro-stretch-qcom-snapdragon-arm64-20171016-283.img.gz
+VERSION=4.9.56
+
+if [ ! -f &quot;boot-${VERSION}.img&quot; ]; then
+	wget ${BOOTIMG_URL} -O &quot;boot-${VERSION}.img&quot;
+else
+	echo &quot;boot-${VERSION}.img already exists, skip download&quot;
+fi
+
+
+# Push images to artifact server
+ftp -n &lt;&lt;EOF
+open ${FILESERVER}
+user anonymous
+put boot-${VERSION}.img images/dragonboard-410c/linux/boot-${VERSION}.img
+EOF
+
+# Retrieve lava job template
+wget ${LAVA_JOB_TEMPLATE_URL} -O lava_job_template.yaml
+
+
+# Substitute with build info
+export TEST_BOOT_URL=http://${FILESERVER}/images/dragonboard-410c/linux/boot-${VERSION}.img
+export VERSION=${VERSION}
+envsubst &lt; lava_job_template.yaml &gt; lava_job.yaml
+
+LAVA_JOB_DEFINITION=$(cat lava_job.yaml)
+
+# Submit to squad
+curl \
+    --header &quot;Auth-Token: ${SQUAD_TOKEN}&quot; \
+    --form backend=${SQUAD_BACKEND} \
+    --form definition=&quot;${LAVA_JOB_DEFINITION}&quot; \
+    http://${SQUAD_SERVER}/api/submitjob/${SQUAD_GROUP}/${SQUAD_PROJECT}/${VERSION}/jenkins
+
+
+
+#2 Test kernel 4.14.15
+BOOTIMG_URL=https://releases.linaro.org/96boards/dragonboard410c/linaro/debian/18.01/boot-linaro-buster-dragonboard-410c-359.img.gz
+VERSION=4.14.15
+
+if [ ! -f &quot;boot-${VERSION}.img&quot; ]; then
+	wget ${BOOTIMG_URL} -O &quot;boot-${VERSION}.img&quot;
+else
+	echo &quot;boot-${VERSION}.img already exists, skip download&quot;
+fi
+
+
+# Push images to artifact server
+ftp -n &lt;&lt;EOF
+open ${FILESERVER}
+user anonymous
+put boot-${VERSION}.img images/dragonboard-410c/linux/boot-${VERSION}.img
+EOF
+
+# Retrieve lava job template
+wget ${LAVA_JOB_TEMPLATE_URL} -O lava_job_template.yaml
+
+
+# Substitute with build info
+export TEST_BOOT_URL=http://${FILESERVER}/images/dragonboard-410c/linux/boot-${VERSION}.img
+export VERSION=${VERSION}
+envsubst &lt; lava_job_template.yaml &gt; lava_job.yaml
+
+LAVA_JOB_DEFINITION=$(cat lava_job.yaml)
+
+# Submit to squad
+curl \
+    --header &quot;Auth-Token: ${SQUAD_TOKEN}&quot; \
+    --form backend=${SQUAD_BACKEND} \
+    --form definition=&quot;${LAVA_JOB_DEFINITION}&quot; \
+    http://${SQUAD_SERVER}/api/submitjob/${SQUAD_GROUP}/${SQUAD_PROJECT}/${VERSION}/jenkins
+
+
+#3 Test kernel 4.14.96
+BOOTIMG_URL=https://releases.linaro.org/96boards/dragonboard410c/linaro/debian/latest/boot-linaro-buster-dragonboard-410c-528.img.gz
+VERSION=4.14.96
+
+if [ ! -f &quot;boot-${VERSION}.img&quot; ]; then
+	wget ${BOOTIMG_URL} -O &quot;boot-${VERSION}.img&quot;
+else
+	echo &quot;boot-${VERSION}.img already exists, skip download&quot;
+fi
+
+
+# Push images to artifact server
+ftp -n &lt;&lt;EOF
+open ${FILESERVER}
+user anonymous
+put boot-${VERSION}.img images/dragonboard-410c/linux/boot-${VERSION}.img
+EOF
+
+# Retrieve lava job template
+wget ${LAVA_JOB_TEMPLATE_URL} -O lava_job_template.yaml
+
+
+# Substitute with build info
+export TEST_BOOT_URL=http://${FILESERVER}/images/dragonboard-410c/linux/boot-${VERSION}.img
+export VERSION=${VERSION}
+envsubst &lt; lava_job_template.yaml &gt; lava_job.yaml
+
+LAVA_JOB_DEFINITION=$(cat lava_job.yaml)
+
+# Submit to squad
+curl \
+    --header &quot;Auth-Token: ${SQUAD_TOKEN}&quot; \
+    --form backend=${SQUAD_BACKEND} \
+    --form definition=&quot;${LAVA_JOB_DEFINITION}&quot; \
+    http://${SQUAD_SERVER}/api/submitjob/${SQUAD_GROUP}/${SQUAD_PROJECT}/${VERSION}/jenkins
+    
+
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
