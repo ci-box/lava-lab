@@ -62,7 +62,7 @@ services:
         admin_username: admin
         admin_password: password
         group: "Linaro"
-        projects: "openembedded-rpb-410c Android-master Zephyr-master"
+        projects: "openembedded-rpb linux-qcomlt android zephyr-master"
         # Lava test execution backend
         lava_server: lava.server
         lava_username: admin
