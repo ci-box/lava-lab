@@ -61,6 +61,7 @@ services:
       args:
         admin_username: admin
         admin_password: password
+        admin_token: "2d703e793ea345efdbab52d95fe33ec715bcc2d4"
         group: "Linaro"
         projects: "openembedded-rpb linux-qcomlt android zephyr-master"
         # Lava test execution backend
