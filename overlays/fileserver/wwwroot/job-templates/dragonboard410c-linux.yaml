@@ -1,0 +1,141 @@
+device_type: dragonboard-410c
+job_name: dragonboard-410c smoke linux-${VERSION}
+
+timeouts:
+  job:
+    minutes: 20
+  action:
+    minutes: 15
+  connection:
+    minutes: 2
+priority: medium
+visibility: public
+
+protocols:
+  lava-lxc:
+    name: lxc-db410c-test
+    template: debian
+    distribution: debian
+    release: jessie
+    mirror: http://mirror.bytemark.co.uk/debian
+    verbose: true
+
+actions:
+- deploy:
+    namespace: tlxc
+    timeout:
+      minutes: 10
+    to: lxc
+    packages:
+    - android-tools-adb
+    - android-tools-fastboot
+    os: debian
+
+- boot:
+    namespace: tlxc
+    prompts:
+    - 'root@(.*):/#'
+    timeout:
+      minutes: 5
+    method: lxc
+
+- deploy:
+    timeout:
+      minutes: 40
+    to: fastboot
+    namespace: db410c
+    images:
+      boot:
+        url: ${TEST_BOOT_URL}
+        compression: gz
+      rootfs:
+        url: http://fileserver/images-healthcheck/dragonboard-410c/rootfs.img
+        apply-overlay: true
+    os: oe
+    protocols:
+        lava-lxc:
+        - action: fastboot-deploy
+          request: pre-power-command
+          timeout:
+              minutes: 2
+
+- boot:
+    namespace: db410c
+    auto_login:
+      login_prompt: "login:"
+      username: root
+    prompts:
+    - 'micro#'
+    timeout:
+      minutes: 15
+    method: fastboot
+    protocols:
+      lava-lxc:
+      - action: auto-login-action
+        request: pre-os-command
+        timeout:
+          minutes: 2
+
+- test:
+    namespace: db410c
+    timeout:
+      minutes: 4
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: cpu-check
+        run:
+          steps:
+          - set -e
+          - lava-test-case check-cpu0-detected --shell cat /sys/bus/cpu/devices/cpu0/online
+          - lava-test-case check-cpu1-detected --shell cat /sys/bus/cpu/devices/cpu1/online
+          - lava-test-case check-cpu2-detected --shell cat /sys/bus/cpu/devices/cpu2/online
+          - lava-test-case check-cpu3-detected --shell cat /sys/bus/cpu/devices/cpu3/online
+          - lava-test-case check-cpu0-offon --shell echo 0 > /sys/bus/cpu/devices/cpu0/online && sleep 1 && echo 1 > /sys/bus/cpu/devices/cpu0/online
+          - lava-test-case check-cpu1-offon --shell echo 0 > /sys/bus/cpu/devices/cpu1/online && sleep 1 && echo 1 > /sys/bus/cpu/devices/cpu1/online
+          - lava-test-case check-cpu2-offon --shell echo 0 > /sys/bus/cpu/devices/cpu2/online && sleep 1 && echo 1 > /sys/bus/cpu/devices/cpu2/online
+          - lava-test-case check-cpu3-offon --shell echo 0 > /sys/bus/cpu/devices/cpu3/online && sleep 1 && echo 1 > /sys/bus/cpu/devices/cpu3/online
+          - lava-test-case check-cpu0-cpufreq --shell cat /sys/bus/cpu/devices/cpu0/cpufreq/cpuinfo_cur_freq
+          - lava-test-case check-cpu1-cpufreq --shell cat /sys/bus/cpu/devices/cpu1/cpufreq/cpuinfo_cur_freq
+          - lava-test-case check-cpu2-cpufreq --shell cat /sys/bus/cpu/devices/cpu2/cpufreq/cpuinfo_cur_freq
+          - lava-test-case check-cpu3-cpufreq --shell cat /sys/bus/cpu/devices/cpu3/cpufreq/cpuinfo_cur_freq
+      from: inline
+      name: cpu-check
+      path: inline/cpu-check.yaml
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: watchdog-check
+        run:
+          steps:
+          - set -e
+          - lava-test-case check-watchdog-detected --shell ls /dev/watchdog
+          - lava-test-case check-watchdog-onoff --shell echo 0 > /dev/watchdog && sleep 30 && echo 0 > /dev/watchdog && sleep 30 && echo V > /dev/watchdog
+      from: inline
+      name: watchdog-check
+      path: inline/watchdog-check.yaml
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: random-check
+        run:
+          steps:
+          - set -e
+          - lava-test-case check-urandom-read --shell dd if=/dev/urandom of=/tmp/urandom bs=1 count=256
+      from: inline
+      name: random-check
+      path: inline/random-check.yaml
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: thermal-check
+        run:
+          steps:
+          - set -e
+          - lava-test-case check-thermal0 --shell cat /sys/class/thermal/thermal_zone0/temp
+          - lava-test-case check-thermal1 --shell cat /sys/class/thermal/thermal_zone1/temp
+      from: inline
+      name: thermal-check
+      path: inline/thermal-check.yaml
+
