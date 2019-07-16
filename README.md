@@ -21,7 +21,6 @@ The instance is composed of docker containers, a lava-server (lava_server), lava
                       |         |
           [qemu-device_1]      [dragonboard-410c_1]
 
-
 ## Prerequisite
 
 - docker
@@ -76,8 +75,30 @@ Stop a previoulsy started instance.
 Stop and remove instance
 
 
-### Customize instance
+### Advanced
 
-Everything takes place in docker-compose.yaml file
+#### Adding a device
 
-TODO
+To create a device instance, add its dictionary to overlays/lava-server/etc/lava-server/dispatcher-config/devices/.
+The naming convention, which is used to automatically create device is DEVICETYPE_INDEX@WORKER.jinja2, e.g. qemu_1@lava_worker0.jinja2.
+
+https://validation.linaro.org/static/docs/v2/lava-scheduler-device-dictionary.html
+
+#### Changing ports
+
+The exposed network ports are defined in docker-compose.yaml (- ports).
+
+#### Changing user/login
+
+Most of ci-box instances allows to define an admin user via docker-compose.yaml.
+Adding regular users need to be done via each component interface (WEB UI, command line, etc...).
+
+#### Attach to a running container
+
+It can be useful to execute a shell in a specific instance, for debugging, hacking...
+
+    sudo docker exec -it CONTAINER_NAME bash
+
+e.g.
+
+    sudo docker exec -it lava-server bash
