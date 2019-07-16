@@ -138,4 +138,30 @@ actions:
       from: inline
       name: thermal-check
       path: inline/thermal-check.yaml
-
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: debugfs-check
+        run:
+          steps:
+          - set -e
+          - lava-test-case debugfs-mount --shell mount -t debugfs none /sys/kernel/debug
+          - lava-test-case debugfs-usb-gadget --shell grep 'gadget' /sys/kernel/debug/ci_hdrc.0/role
+      from: inline
+      name: debugfs-check
+      path: inline/filesystems-check.yaml
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: debugfs-check
+        run:
+          steps:
+          - set -e
+          - lava-test-case has-ext3 --shell grep 'ext3' /proc/filesystems
+          - lava-test-case has-ext3 --shell grep 'ext4' /proc/filesystems
+          - lava-test-case has-nfs --shell grep 'nfs' /proc/filesystems
+          - lava-test-case has-configfs --shell grep 'configfs' /proc/filesystems
+          - lava-test-case check-mounted --shell mount
+      from: inline
+      name: filesystems-check
+      path: inline/filesystems-check.yaml
