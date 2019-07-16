@@ -26,6 +26,12 @@ The instance is composed of docker containers, a lava-server (lava_server), lava
 - docker
 - docker-compose
 
+## Clone the project and submodules
+
+    git clone -b elc-demo https://github.com/ci-box/lava-lab.git
+    cd lava-lab
+    git submodule update --init
+
 ## Customize for your hardware (dragonboard-410c)
 
 The qemu device is handled out of the box, but testing on real hardware like dragonboard-410c requests a bit of configuration.
