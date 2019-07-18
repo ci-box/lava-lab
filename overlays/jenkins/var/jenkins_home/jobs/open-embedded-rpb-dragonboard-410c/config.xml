@@ -13,7 +13,9 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command># don&apos;t build here, just test existing images
+      <command>set -e
+
+# don&apos;t build here, just test existing images
 
 SQUAD_SERVER=squad
 SQUAD_BACKEND=lava.server
