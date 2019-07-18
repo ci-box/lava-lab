@@ -103,6 +103,6 @@ services:
         extra_packages: "build-essential gcc-aarch64-linux-gnu bc lava-tool ftp gettext-base"
         plugins: "git mailer git-parameter build-timeout publish-over-ftp"
     ports:
-      - "8089:8080"
+      - "8083:8080"
     volumes:
       - ./overlays/jenkins/var/jenkins_home/jobs:/var/jenkins_home/jobs

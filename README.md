@@ -56,7 +56,17 @@ If you run command locally you can then access the Lava web user interface at lo
 Since this instance defines a Qemu device and Qemu health-check job, you will see the health
 check job scheduled and executed, same applies for the dragonboard 410c.
 
-That's all! you can now submit your own jobs (https://validation.linaro.org/static/docs/v2/explain_first_job.html)
+That's all!
+
+You should know have access to the various interfaces:
+lava: http://localhost:8080
+squad: http://localhost:8081
+fileserver: http://localhost:8082
+jenkins: http://localhost:8083
+
+- On start lava automatically executes health check jobs for the existing devices.
+- Log into jenkins to execute pre-defined projects (like linux-qcomlt).
+- Connect to squad dashboard for test results.
 
 ## Advanced
 
@@ -79,9 +89,6 @@ Stop a previoulsy started instance.
     make clean
 
 Stop and remove instance
-
-
-### Advanced
 
 #### Adding a device
 
