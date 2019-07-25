@@ -63,7 +63,7 @@ services:
         admin_password: password
         admin_token: "2d703e793ea345efdbab52d95fe33ec715bcc2d4"
         group: "Linaro"
-        projects: "openembedded-rpb linux-qcomlt android zephyr-master"
+        projects: "openembedded-rpb-db410c linux-qcomlt android zephyr-master"
         # Lava test execution backend
         lava_server: lava.server
         lava_username: admin
@@ -103,6 +103,6 @@ services:
         extra_packages: "build-essential gcc-aarch64-linux-gnu bc lava-tool ftp gettext-base"
         plugins: "git mailer git-parameter build-timeout publish-over-ftp"
     ports:
-      - "8083:8080"
+      - "8085:8080"
     volumes:
       - ./overlays/jenkins/var/jenkins_home/jobs:/var/jenkins_home/jobs

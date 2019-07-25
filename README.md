@@ -62,7 +62,7 @@ You should know have access to the various interfaces:
 lava: http://localhost:8080
 squad: http://localhost:8081
 fileserver: http://localhost:8082
-jenkins: http://localhost:8083
+jenkins: http://localhost:8085
 
 - On start lava automatically executes health check jobs for the existing devices.
 - Log into jenkins to execute pre-defined projects (like linux-qcomlt).
