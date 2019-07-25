@@ -54,7 +54,7 @@ wget ${LAVA_JOB_TEMPLATE_URL} -O lava_job_template.yaml
 
 # Substitute with build info
 export TEST_BOOT_URL=http://${FILESERVER}/images/dragonboard-410c/OE/boot-${VERSION}.img
-export TEST_ROOTFS_URL=http://${FILESERVER}/images/dragonboard-410c/OE/rootfs-${VERSION}.img
+export TEST_ROOTFS_URL=http://${FILESERVER}/images/dragonboard-410c/OE/rootfs-${VERSION}.img.gz
 export VERSION=${VERSION}
 envsubst &lt; lava_job_template.yaml &gt; lava_job.yaml
 
