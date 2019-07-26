@@ -1,0 +1,31 @@
+{% extends 'x15.jinja2' %}
+
+{% set hard_reset_command = '/bin/true' %}
+{% set pre_os_command = '/bin/true' %}
+{% set power_off_command = '/bin/true' %}
+{% set power_on_command = '/bin/true' %}
+
+{% set connection_command = 'ftdi-connect DBVN5CCZ' %}
+
+{% set adb_serial_number = '0f00b01b2bb200a2' %}
+{% set fastboot_serial_number = '0f00b01b2bb200a2' %}
+{% set device_info = [{'board_id': '0f00b01b2bb200a2'}] %}
+{% set device_ip = "10.7.0.86" %}
+
+{% set flash_cmds_order = ['update',
+'ptable',
+'partition',
+'hyp',
+'modem',
+'rpm',
+'sbl1',
+'sbl2',
+'sec',
+'tz',
+'aboot',
+'boot',
+'rootfs',
+'vendor',
+'system',
+'cache',
+'userdata'] %}
