@@ -16,10 +16,10 @@ The instance is composed of docker containers, a lava-server (lava_server), lava
     | lava_server | | lava_worker0 | | fileserver |  |  squad   |  |  jenkins  |
     |             | |              | |            |  |          |  |           |
      -------------   --------------   ------------    ----------    -----------
-                      |         |
-                      |         |
-                      |         |
-          [qemu-device_1]      [dragonboard-410c_1]
+                      |    |    |
+                      |    |    |
+                      |    |    |
+          [qemu-device_1] [X15] [dragonboard-410c_1]
 
 ## Prerequisite
 
@@ -40,6 +40,8 @@ Indeed, in order to allows Lava to communicate with your DUT and control its pow
 1. Define the power commands (e.g. to control relays, pdu...)
 2. Define the connection command (to get serial/debug link with the board)
 3. Define the board fastboot serial number (to detect and flash board)
+
+dragonboard-410c needs to be correctly partitioned, with empty boot partition.
 
 ## Create and Start instance
 
