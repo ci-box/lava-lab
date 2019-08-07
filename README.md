@@ -26,6 +26,13 @@ The instance is composed of docker containers, a lava-server (lava_server), lava
 - docker
 - docker-compose
 
+## Download test images
+
+Some OS images, used for health-check testing are not part of the git repo.
+They need to be downloaded manually:
+
+    ./populate-fileserver.sh
+
 ## Clone the project and submodules
 
     git clone -b elc-demo https://github.com/ci-box/lava-lab.git
