@@ -51,13 +51,13 @@ actions:
     namespace: droid
     images:
       boot:
-        url: http://images.validation.linaro.org/snapshots.linaro.org/android/lkft/lkft-x15-aosp-4.14/239/boot_fit.img
+        url: http://fileserver/x15/android/boot_fit.img
       vendor:
-        url: http://images.validation.linaro.org/snapshots.linaro.org/android/lkft/lkft-x15-aosp-4.14/239/vendor.img
+        url: http://fileserver/x15/android/vendor.img
       userdata:
-        url: http://images.validation.linaro.org/snapshots.linaro.org/android/lkft/lkft-x15-aosp-4.14/239/userdata.img
+        url: http://fileserver/x15/android/userdata.img
       system:
-        url: http://images.validation.linaro.org/snapshots.linaro.org/android/lkft/lkft-x15-aosp-4.14/239/system.img
+        url: http://fileserver/x15/android/system.img
     os: debian
 
 - boot:
@@ -92,7 +92,7 @@ actions:
     connection: lxc
     images:
       userdata:
-        url: http://images.validation.linaro.org/snapshots.linaro.org/openembedded/lkft/morty/am57xx-evm/rpb/linux-mainline/631/rpb-console-image-am57xx-evm-20180205221320-631.rootfs.img.gz
+        url: http://fileserver/x15/OE/rpb-console-image-am57xx-evm-20180205221320-631.rootfs.img.gz
         compression: gz
         apply-overlay: true
     os: oe
