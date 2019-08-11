@@ -50,6 +50,36 @@ Indeed, in order to allows Lava to communicate with your DUT and control its pow
 
 dragonboard-410c needs to be correctly partitioned, with empty boot partition.
 
+## Configure network
+
+In elc-demo power is controlled via an ethernet power switch which has a static
+IP address (192.168.42.2). You then need to configure the dedicated downstream
+network interface (e.g. eth0) accordingly, either via UI interface or conf files.
+
+One way to achieve this is adding the following into /etc/network/interfaces:
+
+    auto eth0
+    iface eth0 inet static
+    address 192.168.42.1
+    netmask 255.255.255.0
+    network 192.168.42.0
+    broadcast 192.168.42.25
+
+(Note: replace eth0 with the name of used net interface)
+
+Then restart networking
+
+    systemctl restart networking
+
+You should then be able to ping the ethernet power switch:
+
+    ping 192.168.42.2
+
+AND, you should still be able to ping the 'internet' via upstream net interface
+(e.g. wifi):
+
+    ping 8.8.8.8
+
 ## Create and Start instance
 
     make
@@ -75,7 +105,11 @@ jenkins: http://localhost:8085
 
 - On start lava automatically executes health check jobs for the existing devices.
 - Log into jenkins to execute pre-defined projects (like linux-qcomlt).
+    - log-in (right top corner) with 'admin'/'password'
+    - select a job (e.g. linux-qcomlt)
+    - Click on 'Build Now' (left column)
 - Connect to squad dashboard for test results.
+- Connect to lava for tests/devices status
 
 ## Advanced
 
