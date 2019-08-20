@@ -53,17 +53,17 @@ dragonboard-410c needs to be correctly partitioned, with empty boot partition.
 ## Configure network
 
 In elc-demo power is controlled via an ethernet power switch which has a static
-IP address (192.168.42.2). You then need to configure the dedicated downstream
+IP address (192.168.0.18). You then need to configure the dedicated downstream
 network interface (e.g. eth0) accordingly, either via UI interface or conf files.
 
 One way to achieve this is adding the following into /etc/network/interfaces:
 
     auto eth0
     iface eth0 inet static
-    address 192.168.42.1
+    address 192.168.0.1
     netmask 255.255.255.0
-    network 192.168.42.0
-    broadcast 192.168.42.25
+    network 192.168.0.0
+    broadcast 192.168.0.255
 
 (Note: replace eth0 with the name of used net interface)
 
@@ -73,7 +73,7 @@ Then restart networking
 
 You should then be able to ping the ethernet power switch:
 
-    ping 192.168.42.2
+    ping 192.168.0.18
 
 AND, you should still be able to ping the 'internet' via upstream net interface
 (e.g. wifi):
