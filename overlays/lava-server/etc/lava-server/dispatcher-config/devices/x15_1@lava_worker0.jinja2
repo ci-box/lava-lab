@@ -1,25 +1,25 @@
 {% extends 'x15.jinja2' %}
 
-{% set power_off_command = ['/usr/local/lab-scripts/snmp_pdu_control --hostname 192.168.42.2 --command off --port 4',
-'/usr/local/lab-scripts/eth008_control -a 192.168.42.3 -r 1 -s off',
-'/usr/local/lab-scripts/eth008_control -a 192.168.42.3 -r 2 -s off',
-'/usr/local/lab-scripts/eth008_control -a 192.168.42.3 -r 3 -s off',
-'/usr/local/lab-scripts/eth008_control -a 192.168.42.3 -r 4 -s off'] %}
+{% set power_off_command = ['/usr/local/lab-scripts/snmp_pdu_control --hostname 192.168.0.18 --command off --port 4',
+'/usr/local/lab-scripts/eth008_control -a 192.168.0.19 -r 1 -s off',
+'/usr/local/lab-scripts/eth008_control -a 192.168.0.19 -r 2 -s off',
+'/usr/local/lab-scripts/eth008_control -a 192.168.0.19 -r 3 -s off',
+'/usr/local/lab-scripts/eth008_control -a 192.168.0.19 -r 4 -s off'] %}
 {# We use the ethernet controlled relay to emulate the power button press #}
-{% set hard_reset_command = ['/usr/local/lab-scripts/eth008_control -a 192.168.42.3 -r 4 -s onoff',
-'/usr/local/lab-scripts/eth008_control -a 192.168.42.3 -r 2 -s onoff',
-'/usr/local/lab-scripts/eth008_control -a 192.168.42.3 -r 3 -s onoff',
-'/usr/local/lab-scripts/eth008_control -a 192.168.42.3 -r 1 -s offon',
-'/usr/local/lab-scripts/snmp_pdu_control --hostname 192.168.42.2 --command reboot --port 4 --delay 20'] %}
-{% set power_on_command = ['/usr/local/lab-scripts/eth008_control -a 192.168.42.3 -r 1 -s on',
-'/usr/local/lab-scripts/snmp_pdu_control --hostname 192.168.42.2 --command on --port 4'] %}
+{% set hard_reset_command = ['/usr/local/lab-scripts/eth008_control -a 192.168.0.19 -r 4 -s onoff',
+'/usr/local/lab-scripts/eth008_control -a 192.168.0.19 -r 2 -s onoff',
+'/usr/local/lab-scripts/eth008_control -a 192.168.0.19 -r 3 -s onoff',
+'/usr/local/lab-scripts/eth008_control -a 192.168.0.19 -r 1 -s offon',
+'/usr/local/lab-scripts/snmp_pdu_control --hostname 192.168.0.18 --command reboot --port 4 --delay 20'] %}
+{% set power_on_command = ['/usr/local/lab-scripts/eth008_control -a 192.168.0.19 -r 1 -s on',
+'/usr/local/lab-scripts/snmp_pdu_control --hostname 192.168.0.18 --command on --port 4'] %}
 
-{% set connection_command = 'ftdi-connect FTGNRR7Z' %}
+{% set connection_command = 'ftdi-connect FTGNUL38' %}
 
-{% set adb_serial_number = '1900d00f3b1400a2' %}
-{% set fastboot_serial_number = '1900d00f3b1400a2' %}
-{% set device_info = [{'board_id': '1900d00f3b1400a2'}] %}
-{% set device_ip = "10.7.0.86" %}
+{% set adb_serial_number = '1100600978b800a2' %}
+{% set fastboot_serial_number = '1100600978b800a2' %}
+{% set device_info = [{'board_id': '1100600978b800a2'}] %}
+{% set device_ip = "192.168.0.17" %}
 
 {% set flash_cmds_order = ['update',
 'ptable',
@@ -39,12 +39,12 @@
 'cache',
 'userdata'] %}
 {% set recovery_mode_command = [
-'/usr/local/lab-scripts/eth008_control -a 192.168.42.3 -r 1 -s on',
-'/usr/local/lab-scripts/eth008_control -a 192.168.42.3 -r 2 -s on',
-'/usr/local/lab-scripts/eth008_control -a 192.168.42.3 -r 3 -s on',
-'/usr/local/lab-scripts/eth008_control -a 192.168.42.3 -r 4 -s on'] %}
+'/usr/local/lab-scripts/eth008_control -a 192.168.0.19 -r 1 -s on',
+'/usr/local/lab-scripts/eth008_control -a 192.168.0.19 -r 2 -s on',
+'/usr/local/lab-scripts/eth008_control -a 192.168.0.19 -r 3 -s on',
+'/usr/local/lab-scripts/eth008_control -a 192.168.0.19 -r 4 -s on'] %}
 {% set recovery_exit_command = [
-'/usr/local/lab-scripts/eth008_control -a 192.168.42.3 -r 1 -s off',
-'/usr/local/lab-scripts/eth008_control -a 192.168.42.3 -r 2 -s off',
-'/usr/local/lab-scripts/eth008_control -a 192.168.42.3 -r 3 -s off',
-'/usr/local/lab-scripts/eth008_control -a 192.168.42.3 -r 4 -s off'] %}
+'/usr/local/lab-scripts/eth008_control -a 192.168.0.19 -r 1 -s off',
+'/usr/local/lab-scripts/eth008_control -a 192.168.0.19 -r 2 -s off',
+'/usr/local/lab-scripts/eth008_control -a 192.168.0.19 -r 3 -s off',
+'/usr/local/lab-scripts/eth008_control -a 192.168.0.19 -r 4 -s off'] %}
