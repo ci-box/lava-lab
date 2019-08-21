@@ -1,0 +1,130 @@
+timeouts:
+  job:
+    minutes: 55
+  connection:
+    minutes: 2
+context:
+  test_character_delay: 10
+device_type: x15
+job_name: lkft-ltp-quickhit-linux-4.14.y-561
+priority: 80
+visibility: public
+metadata:
+  git branch: linux-4.14.y
+  git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+  git commit: 3ffe1e79c174b2093f7ee3df589a7705572c9620
+  git describe: v4.14.138
+  make_kernelversion: 4.14.138
+  kernel-config: http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/am57xx-evm/lkft/linux-stable-rc-4.14/561/config
+  kernel-defconfig: http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/am57xx-evm/lkft/linux-stable-rc-4.14/561/defconfig
+  build-url: https://ci.linaro.org/job/openembedded-lkft-linux-stable-rc-4.14/DISTRO=lkft,MACHINE=am57xx-evm,label=docker-lkft/561/
+  build-location: http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/am57xx-evm/lkft/linux-stable-rc-4.14/561
+  toolchain: arm-linaro-linux-gnueabi 7.%
+  series: lkft
+  email-notification: ''
+  ltp-quickhit-tests__url: git://github.com/linux-test-project/ltp.git
+  ltp-quickhit-tests__version: '20190517'
+  ltp-quickhit-tests__revision: ac33ef87f0b9dc56533026435be3ea8c67ce86d2
+protocols:
+  lava-lxc:
+    name: lxc-target
+    template: debian
+    distribution: debian
+    release: jessie
+    arch: amd64
+    mirror: http://deb.debian.org/debian
+actions:
+- deploy:
+    namespace: tlxc
+    timeout:
+      minutes: 15
+    to: lxc
+    packages:
+    - wget
+    - unzip
+    os: debian
+- boot:
+    namespace: tlxc
+    prompts:
+    - root@(.*):/#
+    timeout:
+      minutes: 5
+    method: lxc
+- test:
+    namespace: tlxc
+    timeout:
+      minutes: 10
+    definitions:
+    - repository: https://github.com/Linaro/test-definitions.git
+      from: git
+      path: automated/linux/android-platform-tools/install.yaml
+      name: install-android-platform-tools-r2600
+      parameters:
+        LINK: https://dl.google.com/android/repository/platform-tools_r26.0.0-linux.zip
+- deploy:
+    timeout:
+      minutes: 25
+    to: fastboot
+    namespace: target
+    connection: lxc
+    images:
+      userdata:
+        url: http://fileserver/x15/rpb-console-image-am57xx-evm-20180205221320-631.rootfs.img.gz
+        compression: gz
+        apply-overlay: true
+    os: oe
+- boot:
+    namespace: target
+    auto_login:
+      login_prompt: 'am57xx-evm login:'
+      username: root
+    prompts:
+    - 'root@am57xx-evm:'
+    commands:
+    - setenv fdtfile am57xx-beagle-x15.dtb
+    - setenv console ttyS2,115200n8
+    - setenv mmcdev 1
+    - setenv bootpart 1:9
+    - run mmcboot
+    timeout:
+      minutes: 15
+    method: u-boot
+- test:
+    namespace: target
+    timeout:
+      minutes: 45
+    definitions:
+    - from: inline
+      repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: prep-tmp-disk
+          description: Mount local disk for tmp space
+        run:
+          steps:
+          - export STORAGE_DEV=$(lava-target-storage SATA || lava-target-storage USB)
+          - test -n "${STORAGE_DEV}" || lava-test-raise "STORAGE_DEV not found; job
+            exit"
+          - echo "y" | mkfs -t ext4 ${STORAGE_DEV} || lava-test-raise "mkfs -t ext4
+            ${STORAGE_DEV} failed; job exit"
+          - mkdir -p /scratch
+          - mount ${STORAGE_DEV} /scratch && echo "mounted" || lava-test-raise "mount
+            ${STORAGE_DEV} failed; job exit"
+          - df -h
+          - mount
+      name: prep-tmp-disk
+      path: inline/prep.yaml
+    - repository: https://github.com/Linaro/test-definitions.git
+      from: git
+      path: automated/linux/ltp/ltp.yaml
+      parameters:
+        SKIP_INSTALL: 'true'
+        TST_CMDFILES: quickhit
+        SKIPFILE: skipfile-lkft.yaml
+        BOARD: x15
+        BRANCH: '4.14'
+        ENVIRONMENT: production
+        TIMEOUT_MULTIPLIER: 3
+        LTP_TMPDIR: /scratch
+      name: ltp-quickhit-tests
+
