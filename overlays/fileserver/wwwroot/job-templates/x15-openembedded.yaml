@@ -69,7 +69,7 @@ actions:
     connection: lxc
     images:
       userdata:
-        url: http://fileserver/x15/rpb-console-image-am57xx-evm-20180205221320-631.rootfs.img.gz
+        url: http://fileserver/x15/OE/rpb-console-image-am57xx-evm-20180205221320-631.rootfs.img.gz
         compression: gz
         apply-overlay: true
     os: oe
