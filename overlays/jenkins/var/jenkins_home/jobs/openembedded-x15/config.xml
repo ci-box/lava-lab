@@ -21,10 +21,10 @@ SQUAD_SERVER=squad
 SQUAD_BACKEND=lava.server
 SQUAD_TOKEN=2d703e793ea345efdbab52d95fe33ec715bcc2d4
 SQUAD_GROUP=Linaro
-SQUAD_PROJECT=openembedded-x15
+SQUAD_PROJECT=android
 VERSION=&quot;631&quot;
 FILESERVER=fileserver
-LAVA_JOB_TEMPLATE_URL=http://${FILESERVER}/job-templates/x15-openembedded.yaml
+LAVA_JOB_TEMPLATE_URL=http://${FILESERVER}/job-templates/x15-android.yaml
 
 # Retrieve lava job template
 wget ${LAVA_JOB_TEMPLATE_URL} -O lava_job_template.yaml
