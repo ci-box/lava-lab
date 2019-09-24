@@ -1,50 +1,66 @@
-device_type: x15
-job_name: x15-apk-automation
+context:
+  test_character_delay: 10
 timeouts:
   job:
-    minutes: 60
+    minutes: 180
   action:
-    minutes: 15
+    minutes: 10
   connection:
     minutes: 2
-priority: medium
 visibility: public
-
+device_type: x15
+job_name: android-lcr-reference-x15-o-38-vellamo3
+priority: low
+metadata:
+  android.build: 38
+  android.name: android-lcr-reference-x15-o
+  android.url: https://ci.linaro.org/job/android-lcr-reference-x15-o/38/
+  android.fastboot: platform-tools_r27.0.1
 protocols:
   lava-lxc:
-    name: lxc-x15-test
-    template: debian
-    distribution: debian
-    release: jessie
-    mirror: http://mirror.bytemark.co.uk/debian
-
+    name: lxc-target
+    template: ubuntu
+    distribution: ubuntu
+    release: xenial
+    arch: amd64
 actions:
 - deploy:
     namespace: tlxc
     timeout:
-      minutes: 5
+      minutes: 15
     to: lxc
     packages:
-    - android-tools-adb
-    - android-tools-fastboot
-    - systemd
-    - systemd-sysv
-    os: debian
-
+    - wget
+    - zip
+    - unzip
+    os: ubuntu
 - boot:
     namespace: tlxc
     prompts:
-    - 'root@(.*):/#'
-    - 'shell@am57xevm:/'
+    - root@(.*):/#
+    - console:/
+    - :/
     timeout:
       minutes: 5
     method: lxc
+- test:
+    namespace: tlxc
+    timeout:
+      minutes: 10
+    definitions:
+    - repository: https://git.linaro.org/qa/test-definitions.git
+      from: git
+      path: automated/linux/android-platform-tools/install.yaml
+      name: install-android-platform-tools-r2701
+      parameters:
+        LINK: https://dl.google.com/android/repository/platform-tools_r27.0.1-linux.zip
 
 - deploy:
     timeout:
       minutes: 15
     to: fastboot
-    namespace: droid
+    namespace: target
+    connection: lxc
     images:
       boot:
         url: http://fileserver/x15/android/boot_fit.img
@@ -57,11 +73,11 @@ actions:
     os: debian
 
 - boot:
-    namespace: droid
+    namespace: target
     prompts:
-    - 'am57xevm:/'
     - root@(.*):/#
-    - :/
+    - hikey:/
+    - console:/
     timeout:
       minutes: 15
     method: fastboot
@@ -69,11 +85,37 @@ actions:
 - test:
     namespace: tlxc
     timeout:
-      minutes: 10
+      minutes: 175
     definitions:
-    - repository: https://github.com/linaro/test-definitions.git
+    - repository: https://git.linaro.org/qa/test-definitions.git
       from: git
       path: automated/android/apk-automation/apk-automation.yaml
-      name: apk-automation
-      parameters:
-        BASE_URL: "http://fileserver/apks/"
+      name: gearses2eclair
+      params:
+        TEST_NAME: gearses2eclair
+        BASE_URL: http://fileserver/x15/android/
+        LOOPS: 2
+    - repository: https://git.linaro.org/qa/test-definitions.git
+      from: git
+      path: automated/android/apk-automation/apk-automation.yaml
+      name: antutu6
+      params:
+        TEST_NAME: antutu6
+        BASE_URL: http://fileserver/x15/android/
+        LOOPS: 2
+    - repository: https://git.linaro.org/qa/test-definitions.git
+      from: git
+      path: automated/android/apk-automation/apk-automation.yaml
+      name: gearses2eclair
+      params:
+        TEST_NAME: gearses2eclair
+        BASE_URL: http://fileserver/x15/android/
+        LOOPS: 2
+    - repository: https://git.linaro.org/qa/test-definitions.git
+      from: git
+      path: automated/android/apk-automation/apk-automation.yaml
+      name: vellamo3
+      params:
+        TEST_NAME: vellamo3
+        BASE_URL: http://fileserver/x15/android/
+        LOOPS: 2
