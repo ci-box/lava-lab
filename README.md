@@ -25,6 +25,10 @@ The instance is composed of docker containers, a lava-server (lava_server), lava
 - docker
 - docker-compose
 
+## Init git submodules
+
+    git submodule update --init
+
 ## Create and Start instance
 
     make
