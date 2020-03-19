@@ -11,11 +11,12 @@ services:
       service: lava-server
     build:
       args:
+        version: 2020.02
         admin_username: admin
         admin_password: password
         workers: lava_worker0
     ports:
-      - "8080:80" # expose http to outside
+      - "8042:80" # expose http to outside
     volumes:
       - ./overlays/lava-server/etc/lava-server/dispatcher-config/devices:/etc/lava-server/dispatcher-config/devices
       - ./overlays/lava-server/etc/lava-server/dispatcher-config/health-checks:/etc/lava-server/dispatcher-config/health-checks
@@ -30,6 +31,9 @@ services:
     build:
       args:
         server: lava-server
+    volumes:
+      - /boot:/boot
+      - /lib/modules:/lib/modules
 
 # File Server (FTP/HTPP) to store artifacts (images, test templates...)
   fileserver:
