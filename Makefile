@@ -1,5 +1,4 @@
 run:
-	git submodule update
 	docker-compose up --build
 
 start:

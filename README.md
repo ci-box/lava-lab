@@ -25,6 +25,12 @@ The instance is composed of docker containers, a lava-server (lava_server), lava
 - docker
 - docker-compose
 
+## Init/Update repo
+
+    git clone -b master --single-branch https://github.com/ci-box/lava-lab.git
+    cd lava-lab
+    git submodule update --init
+
 ## Create and Start instance
 
     make
