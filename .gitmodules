@@ -7,3 +7,9 @@
 [submodule "ci-box-fileserver"]
 	path = ci-box-fileserver
 	url = https://github.com/ci-box/ci-box-fileserver
+[submodule "ci-box-jenkins"]
+	path = ci-box-jenkins
+	url = https://github.com/ci-box/ci-box-jenkins.git
+[submodule "ci-box-squad"]
+	path = ci-box-squad
+	url = https://github.com/ci-box/ci-box-squad.git
