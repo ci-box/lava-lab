@@ -11,7 +11,7 @@ services:
       service: lava-server
     build:
       args:
-        version: 2020.02
+        version: 2020.05
         admin_username: admin
         admin_password: password
         workers: lava_worker0
@@ -22,18 +22,24 @@ services:
       - ./overlays/lava-server/etc/lava-server/dispatcher-config/health-checks:/etc/lava-server/dispatcher-config/health-checks
 
 # LAVA worker0 (for testing) instance inheriting from ci-box-lava-worker
-  lava-worker0:
-    container_name: lava_worker0
+  lava-worker:
+    container_name: lava-worker0
     hostname: lava_worker0
     extends:
       file: ./ci-box-lava-worker/docker-compose.yml
       service: lava-worker
     build:
       args:
+        version: 2020.05
         server: lava-server
     volumes:
       - /boot:/boot
       - /lib/modules:/lib/modules
+    environment:
+      # We don't export /dev/kvm for compatibility reason (LAVA in a VM)
+      # Force libguestfs to use emulation instead of virtualization
+      - LIBGUESTFS_BACKEND_SETTINGS=force_tcg
+    privileged: true
 
 # File Server (FTP/HTPP) to store artifacts (images, test templates...)
   fileserver:
