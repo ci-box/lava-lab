@@ -17,7 +17,7 @@ The instance is composed of docker containers, a lava-server (lava_server), lava
                            |
                            |
                            |
-                     [qemu-device-1]
+                     [qemu-devices]
 
 
 ## Prerequisite
@@ -41,7 +41,7 @@ or if your user is not part of `docker` group:
 
 ## Play
 
-If you run command locally you can then access the Lava web user interface at localhost:8080
+If you run command locally you can then access the Lava web user interface at localhost:8042
 Since this instance defines a Qemu device and Qemu health-check job, you will see the health check job scheduled and executed.
 
 That's all! you can now submit your own jobs (https://validation.linaro.org/static/docs/v2/explain_first_job.html)
@@ -72,5 +72,3 @@ Stop and remove instance
 ### Customize instance
 
 Everything takes place in docker-compose.yaml file
-
-TODO
