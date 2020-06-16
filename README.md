@@ -1,19 +1,22 @@
-# lava-lab
-Simple Lava lab recipe to generate a basic Lava lab instance with a Qemu device
+# CI LOOP with LAVA
+A simple example of CI loop using LAVA for testing DUT
+The docker-compose recipe setup all the CI components.
 
-The instance is composed of docker containers, a lava-server (lava_server), lava-dispatcher (lava_worker0) and a file-server (fileserver).
-- The lava-server (master) shcedules the test jobs, administers devices ands stores the results
+The instance is composed of docker containers
+- Jenkins which is the build automation component, build the software and schedule jobs
+- Squad is the result dashboard, it aggregates test results for specific project/versions.
+- The lava-server (master) schedules the test jobs, administers devices ands stores the results
 - The lava-dispatcher (worker) deploys software (images) on connected devices, and processes the test jobs
 - The file-server store artifacts (e.g. images to test, test templates, etc...)
 
 <!-- language: lang-none -->
-    --------------------------------------------------- Network
-           |                |               |
-     -------------   --------------   ------------
-    |             | |              | |            |
-    | lava_server | | lava_worker0 | | fileserver |
-    |             | |              | |            |
-     -------------   --------------   ------------
+    ---------------------------------------------------------------------- Network
+           |                |               |             |         |
+     -------------   --------------   ------------   ---------   -------
+    |             | |              | |            | |         | |       |
+    | lava_server | | lava_worker0 | | fileserver | | Jenkins | | Squad |
+    |             | |              | |            | |         | |       |
+     -------------   --------------   ------------   --------    -------
                            |
                            |
                            |
@@ -27,7 +30,7 @@ The instance is composed of docker containers, a lava-server (lava_server), lava
 
 ## Init/Update repo
 
-    git clone -b master --single-branch https://github.com/ci-box/lava-lab.git
+    git clone -b ci-loop --single-branch https://github.com/ci-box/lava-lab.git
     cd lava-lab
     git submodule update --init
 
@@ -41,12 +44,17 @@ or if your user is not part of `docker` group:
 
 ## Play
 
-If you run command locally you can then access the Lava web user interface at localhost:8042
-Since this instance defines a Qemu device and Qemu health-check job, you will see the health check job scheduled and executed.
+If you run command locally you can then access the components:
+Jenkins interface: localhost:8083
+Squad interface: localhost:8080
+Lava web user interface: localhost:8042
 
-That's all! you can now submit your own jobs (https://validation.linaro.org/static/docs/v2/explain_first_job.html)
-
-## Advanced
+This instance is for demoing purpose:
+- A jenkins job (linux) is scheduled every 5 minutes to 'build' linux 
+- The jenkins job publishes the kernel binary to the 'fileserver'
+- The jenkins job retrieves LAVA job templates and schedule testing on the new binary
+- SQUAD receive the test job requests and forward them to LAVA
+- SQUAD monitor tests results and report results in linux projects
 
 ### Makefile
 
