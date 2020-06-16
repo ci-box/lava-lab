@@ -38,7 +38,9 @@ put Image.gz
 EOF</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command># Submit for testing
+      <command>#!/bin/bash
+
+# Submit for testing
 SQUAD_SERVER=squad
 SQUAD_BACKEND=lava.server
 SQUAD_TOKEN=2d703e793ea345efdbab52d95fe33ec715bcc2d4
