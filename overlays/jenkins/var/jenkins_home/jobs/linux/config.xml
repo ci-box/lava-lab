@@ -1,0 +1,89 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.TimerTrigger>
+      <spec>H/5 * * * *</spec>
+    </hudson.triggers.TimerTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command># For example purpose, this jenkins job is triggered every 15 minutes (cf build triggers)
+# Here you should build your sofware (kernel, rootfs, bootloader, etc...
+# Instead of building (which is time expensive), we download a prebuilt here
+
+# Download kernel
+wget https://people.linaro.org/~loic.poulain/linux/Image-5.4.0-rc6-aarch64.gz -O Image.gz</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Publish the kernel
+
+FILESERVER=fileserver
+
+# Push images to artifact server
+ftp -n &lt;&lt; EOF
+open ${FILESERVER}
+user anonymous
+cd linux
+put Image.gz
+EOF</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Submit for testing
+SQUAD_SERVER=squad
+SQUAD_BACKEND=lava.server
+SQUAD_TOKEN=2d703e793ea345efdbab52d95fe33ec715bcc2d4
+SQUAD_GROUP=Linaro
+SQUAD_PROJECT=linux-mainline
+FILESERVER=fileserver
+LAVA_JOB_TEMPLATE_URL=http://${FILESERVER}/job-templates/qemu-linux-smoke.yaml
+
+# Generate a fake software version
+# It should normally be the real sofware version
+# e.g. for kernel kernel_version=$(make kernelversion)
+VERSION=5.$((RANDOM % 10))
+
+# Retrieve lava job template
+wget ${LAVA_JOB_TEMPLATE_URL} -O lava_job_template.yaml
+
+# Substitute with build info
+export KERNEL_URL=http://${FILESERVER}/linux/Image.gz
+envsubst &lt; lava_job_template.yaml &gt; lava_job.yaml
+
+LAVA_JOB_DEFINITION=$(cat lava_job.yaml)
+
+# Submit to squad
+curl \
+    --header &quot;Auth-Token: ${SQUAD_TOKEN}&quot; \
+    --form backend=${SQUAD_BACKEND} \
+    --form definition=&quot;${LAVA_JOB_DEFINITION}&quot; \
+    http://${SQUAD_SERVER}/api/submitjob/${SQUAD_GROUP}/${SQUAD_PROJECT}/${VERSION}/jenkins
+
+
+
+# Let&apos;s submit an other set of tests for the same build
+LAVA_JOB_TEMPLATE_URL=http://${FILESERVER}/job-templates/qemu-linux-busybox.yaml
+wget ${LAVA_JOB_TEMPLATE_URL} -O lava_job_template.yaml
+export KERNEL_URL=http://${FILESERVER}/linux/Image.gz
+envsubst &lt; lava_job_template.yaml &gt; lava_job.yaml
+LAVA_JOB_DEFINITION=$(cat lava_job.yaml)
+
+curl \
+    --header &quot;Auth-Token: ${SQUAD_TOKEN}&quot; \
+    --form backend=${SQUAD_BACKEND} \
+    --form definition=&quot;${LAVA_JOB_DEFINITION}&quot; \
+    http://${SQUAD_SERVER}/api/submitjob/${SQUAD_GROUP}/${SQUAD_PROJECT}/${VERSION}/jenkins</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

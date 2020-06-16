@@ -1,0 +1,61 @@
+device_type: qemu
+job_name: qemu arm64 smoke tests
+
+timeouts:
+  job:
+    minutes: 15
+  action:
+    minutes: 5
+  connection:
+    minutes: 3
+
+priority: medium
+visibility: public
+
+context:
+  arch: arm64
+  machine: virt
+  netdevice: user
+  cpu: cortex-a57
+  extra_options:
+  - -smp
+  - 1
+
+actions:
+- deploy:
+    to: tmpfs
+    os: oe
+    images:
+      kernel:
+        image_arg: -kernel {kernel}
+        url: ${KERNEL_URL}
+        compression: gz
+      rootfs:
+        image_arg: -drive format=raw,file={rootfs} --append 'root=/dev/vda'
+        url: https://people.linaro.org/~loic.poulain/micro-rootfs/micro-rootfs-dev-aarch64.ext2.gz
+        compression: gz
+
+- boot:
+    method: qemu
+    media: tmpfs
+    timeout:
+      minutes: 2
+    auto_login:
+      login_prompt: "login:"
+      username: root
+    prompts:
+    - 'micro#'
+
+- test:
+    timeout:
+      minutes: 5
+    definitions:
+    - repository: http://git.linaro.org/lava-team/lava-functional-tests.git
+      from: git
+      path: lava-test-shell/smoke-tests-basic.yaml
+      name: smoke-tests
+    - repository: https://git.linaro.org/lava-team/lava-functional-tests.git
+      from: git
+      path: lava-test-shell/single-node/singlenode03.yaml
+      name: singlenode-advanced
+

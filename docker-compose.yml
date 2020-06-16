@@ -14,7 +14,12 @@ services:
         version: 2020.05
         admin_username: admin
         admin_password: password
+        admin_token: "d0siRzClNHWNtUYJbpmjOPEyPp0QLCKqQtDGTftN"
         workers: lava_worker0
+    networks:
+      default:
+        aliases:
+          - lava.server
     ports:
       - "8042:80" # expose http to outside
     volumes:
@@ -57,3 +62,41 @@ services:
       - "8081:80"
     volumes:
       - ./overlays/fileserver/wwwroot:/wwwroot
+
+# Jenkins (for building) instance inheriting from ci-box-jenkins
+  jenkins-server:
+    container_name: jenkins-server
+    hostname: jenkins-server
+    extends:
+      file: ./ci-box-jenkins/docker-compose.yml
+      service: jenkins
+    build:
+      args:
+        version: lts
+        admin_username: admin
+        admin_password: password
+        extra_packages: "build-essential gcc-aarch64-linux-gnu bc ftp gettext-base"
+        plugins: "git mailer git-parameter build-timeout publish-over-ftp"
+    volumes:
+      - ./overlays/jenkins/var/jenkins_home/jobs:/var/jenkins_home/jobs
+
+# SQUAD - Software Quality Dashboard
+  squad:
+    container_name: squad
+    hostname: squad
+    extends:
+      file: ./ci-box-squad/docker-compose.yml
+      service: squad
+    build:
+      args:
+        admin_username: admin
+        admin_password: password
+        admin_token: "2d703e793ea345efdbab52d95fe33ec715bcc2d4"
+        group: "Linaro"
+        projects: "linux-mainline yocto-zeus"
+        # Lava test execution backend
+        lava_server: lava.server
+        lava_username: admin
+        lava_token: "d0siRzClNHWNtUYJbpmjOPEyPp0QLCKqQtDGTftN"
+    ports: # expose http to outside
+      - "8080:80"
