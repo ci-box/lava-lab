@@ -45,9 +45,9 @@ or if your user is not part of `docker` group:
 ## Play
 
 If you run command locally you can then access the components:
-Jenkins interface: localhost:8083
-Squad interface: localhost:8080
-Lava web user interface: localhost:8042
+- Jenkins interface: http://localhost:8083 (login admin/password)
+- Squad interface: http://localhost:8080
+- Lava web user interface: http://localhost:8042 (login admin/password)
 
 This instance is for demoing purpose:
 - A jenkins job (linux) is scheduled every 5 minutes to 'build' linux 
