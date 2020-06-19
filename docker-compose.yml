@@ -16,6 +16,7 @@ services:
         admin_password: password
         admin_token: "d0siRzClNHWNtUYJbpmjOPEyPp0QLCKqQtDGTftN"
         workers: lava_worker0
+        dispatcher_ip: 192.168.0.25
     networks:
       default:
         aliases:
@@ -24,6 +25,7 @@ services:
       - "8042:80" # expose http to outside
     volumes:
       - ./overlays/lava-server/etc/lava-server/dispatcher-config/devices:/etc/lava-server/dispatcher-config/devices
+      - ./overlays/lava-server/etc/lava-server/dispatcher-config/device-types:/etc/lava-server/dispatcher-config/device-types/
       - ./overlays/lava-server/etc/lava-server/dispatcher-config/health-checks:/etc/lava-server/dispatcher-config/health-checks
 
 # LAVA worker0 (for testing) instance inheriting from ci-box-lava-worker
@@ -37,14 +39,31 @@ services:
       args:
         version: 2020.05
         server: lava-server
-    volumes:
-      - /boot:/boot
-      - /lib/modules:/lib/modules
+        extra_packages: nfs-kernel-server rpcbind ser2net tftpd-hpa
     environment:
       # We don't export /dev/kvm for compatibility reason (LAVA in a VM)
       # Force libguestfs to use emulation instead of virtualization
       - LIBGUESTFS_BACKEND_SETTINGS=force_tcg
-    privileged: true
+    privileged: false
+    ports:
+      - "69:69/udp"    # tftp
+      - "2049:2049"    # nfs4
+        #- "111:111"     # rpcbind (nfs) can conflict disable on host
+        #- "111:111/udp"     # rpcbind (nfs)
+      - "4242:4242"    # mountport (nfs)
+      - "4242:4242/udp"    # mountport (nfs)
+    volumes:
+      - ./overlays/lava-worker/etc/default/tftpd-hpa:/etc/default/tftpd-hpa
+      - ./overlays/lava-worker/etc/ser2net.conf:/etc/ser2net.conf
+      - ./overlays/lava-worker/etc/default/nfs-kernel-server:/etc/default/nfs-kernel-server
+      - ./overlays/lava-worker/root/entrypoint.d:/root/entrypoint.d
+      - ./overlays/lava-worker/etc/exports.d/lava-dispatcher-nfs.exports:/etc/exports.d/lava-dispatcher-nfs.exports
+      - /tmp:/var/lib/lava/dispatcher/tmp #nfs export workaround
+      - /tmp:/tmp #nfs export workaround
+      - /boot:/boot
+      - /lib/modules:/lib/modules
+    devices:
+      - /dev/ttyUSB0:/dev/tty.akebi96
 
 # File Server (FTP/HTPP) to store artifacts (images, test templates...)
   fileserver:

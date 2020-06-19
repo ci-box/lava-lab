@@ -1,0 +1,2 @@
+/tmp *(fsid=1,rw,async,no_subtree_check)
+/var/lib/lava/dispatcher/tmp *(fsid=2,rw,async,no_subtree_check)

@@ -1,0 +1,10 @@
+{% extends 'rzn1d.jinja2' %}
+
+{% set power_off_command = '/bin/true off' %}
+{% set hard_reset_command = 'echo "*****PLEASE RESET THE BOARD*****" && sleep 10' %}
+{% set power_on_command = '/bin/true on' %}
+
+{% set connection_command = 'telnet localhost 5000' %}
+
+{% set interrupt_prompt = interrupt_prompt|default('Automatic boot in') %}
+{% set interrupt_char = interrupt_char|default(' ') %}
