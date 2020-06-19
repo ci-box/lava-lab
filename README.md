@@ -20,7 +20,7 @@ The instance is composed of docker containers
                            |
                            |
                            |
-                     [qemu-devices]
+                     [qemu-devices + akebi96]
 
 
 ## Prerequisite
@@ -30,7 +30,7 @@ The instance is composed of docker containers
 
 ## Init/Update repo
 
-    git clone -b ci-loop --single-branch https://github.com/ci-box/lava-lab.git
+    git clone -b  ci-loop-akebi --single-branch https://github.com/ci-box/lava-lab.git
     cd lava-lab
     git submodule update --init
 
