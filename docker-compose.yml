@@ -44,12 +44,12 @@ services:
       # We don't export /dev/kvm for compatibility reason (LAVA in a VM)
       # Force libguestfs to use emulation instead of virtualization
       - LIBGUESTFS_BACKEND_SETTINGS=force_tcg
-    privileged: false
+    privileged: true
     ports:
       - "69:69/udp"    # tftp
       - "2049:2049"    # nfs4
-        #- "111:111"     # rpcbind (nfs) can conflict disable on host
-        #- "111:111/udp"     # rpcbind (nfs)
+      - "111:111"     # rpcbind (nfs) can conflict disable on host
+      - "111:111/udp"     # rpcbind (nfs)
       - "4242:4242"    # mountport (nfs)
       - "4242:4242/udp"    # mountport (nfs)
     volumes:
