@@ -1,0 +1,90 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command># For example purpose, this jenkins job is triggered every 15 minutes (cf build triggers)
+# Here you should build your sofware (kernel, rootfs, bootloader, etc...
+# Instead of building (which is time expensive), we download a prebuilt here
+
+# Download kernel
+# TODO: build kernel from source or use real image
+wget http://fileserver/images-healthcheck/akebi96/Image.gz -O Image.gz
+wget http://fileserver/images-healthcheck/akebi96/uniphier-ld20-akebi96.dtb -O uniphier-ld20-akebi96.dtb</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Publish the kernel
+
+FILESERVER=fileserver
+
+# Push images to artifact server
+ftp -n &lt;&lt; EOF
+open ${FILESERVER}
+user anonymous
+cd akebi96
+put Image.gz
+put uniphier-ld20-akebi96.dtb
+EOF</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+
+# Submit for testing
+SQUAD_SERVER=squad
+SQUAD_BACKEND=lava.server
+SQUAD_TOKEN=2d703e793ea345efdbab52d95fe33ec715bcc2d4
+SQUAD_GROUP=Linaro
+SQUAD_PROJECT=linux-mainline
+FILESERVER=fileserver
+LAVA_JOB_TEMPLATE_URL=http://${FILESERVER}/job-templates/akebi96-linux-smoke.yaml
+KERNEL_VERSION_URL=http://${FILESERVER}/akebi96/version
+
+wget ${KERNEL_VERSION_URL} -O version
+VERSION=`cat version`
+
+
+# Substitute with build info
+export KERNEL_URL=http://${FILESERVER}/akebi96/Image.gz
+export DTB_URL=http://${FILESERVER}/akebi96/uniphier-ld20-akebi96.dtb
+
+# Retrieve lava job template
+wget ${LAVA_JOB_TEMPLATE_URL} -O lava_job_template.yaml
+envsubst &lt; lava_job_template.yaml &gt; lava_job.yaml
+
+LAVA_JOB_DEFINITION=$(cat lava_job.yaml)
+
+# Submit to squad
+curl \
+    --header &quot;Auth-Token: ${SQUAD_TOKEN}&quot; \
+    --form backend=${SQUAD_BACKEND} \
+    --form definition=&quot;${LAVA_JOB_DEFINITION}&quot; \
+    http://${SQUAD_SERVER}/api/submitjob/${SQUAD_GROUP}/${SQUAD_PROJECT}/${VERSION}/jenkins
+
+
+# Let&apos;s submit an other set of tests for the same build
+LAVA_JOB_TEMPLATE_URL=http://${FILESERVER}/job-templates/akebi96-linux-busybox.yaml
+wget ${LAVA_JOB_TEMPLATE_URL} -O lava_job_template.yaml
+envsubst &lt; lava_job_template.yaml &gt; lava_job.yaml
+
+LAVA_JOB_DEFINITION=$(cat lava_job.yaml)
+
+curl \
+    --header &quot;Auth-Token: ${SQUAD_TOKEN}&quot; \
+    --form backend=${SQUAD_BACKEND} \
+    --form definition=&quot;${LAVA_JOB_DEFINITION}&quot; \
+    http://${SQUAD_SERVER}/api/submitjob/${SQUAD_GROUP}/${SQUAD_PROJECT}/${VERSION}/jenkins</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
