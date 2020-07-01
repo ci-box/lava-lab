@@ -1,10 +1,9 @@
-{% extends 'rzn1d.jinja2' %}
+{% extends 'akebi96.jinja2' %}
+
+{% set static_info = [{'board_id': 'Akebi96-proto1'}] %}
 
 {% set power_off_command = '/bin/true off' %}
-{% set hard_reset_command = 'echo "*****PLEASE RESET THE BOARD*****" && sleep 10' %}
+{% set hard_reset_command = '96boardsctl -s DAYWTMUU reset' %}
 {% set power_on_command = '/bin/true on' %}
 
 {% set connection_command = 'telnet localhost 5000' %}
-
-{% set interrupt_prompt = interrupt_prompt|default('Automatic boot in') %}
-{% set interrupt_char = interrupt_char|default(' ') %}
