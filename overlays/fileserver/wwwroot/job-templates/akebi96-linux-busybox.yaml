@@ -1,0 +1,48 @@
+device_type: akebi96
+job_name: akebi96 arm64 busybox smoke tests
+
+timeouts:
+  job:
+    minutes: 13
+  action:
+    minutes: 5
+  connection:
+    minutes: 2
+
+priority: medium
+visibility: public
+
+actions:
+- deploy:
+    timeout:
+      minutes: 4
+    to: tftp
+    kernel:
+      url: ${KERNEL_URL}
+      compression: gz
+      type: image
+    dtb:
+      url: ${DTB_URL}
+    nfsrootfs:
+      url: https://people.linaro.org/~loic.poulain/micro-rootfs/micro-rootfs-aarch64.tar.gz
+      compression: gz
+
+- boot:
+    method: u-boot
+    commands: nfs
+    auto_login:
+      login_prompt: 'login:'
+      username: root
+    prompts:
+    - 'micro#'
+    timeout:
+      minutes: 10
+
+- test:
+    timeout:
+      minutes: 5
+    definitions:
+    - repository: https://github.com/Linaro/test-definitions.git
+      from: git
+      path: automated/linux/busybox/busybox.yaml
+      name: busybox-smoke-tests
