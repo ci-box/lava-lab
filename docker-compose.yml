@@ -16,7 +16,7 @@ services:
         admin_password: password
         admin_token: "d0siRzClNHWNtUYJbpmjOPEyPp0QLCKqQtDGTftN"
         workers: lava_worker0
-        dispatcher_ip: 192.168.0.25
+        dispatcher_ip: ${DISPATCHER_IP}
     networks:
       default:
         aliases:
@@ -44,6 +44,11 @@ services:
       # We don't export /dev/kvm for compatibility reason (LAVA in a VM)
       # Force libguestfs to use emulation instead of virtualization
       - LIBGUESTFS_BACKEND_SETTINGS=force_tcg
+      # For the privileged container, docker export all /dev/* devices
+      # and not making alias (symlink) in devices. So make it by ourselves.
+      - TTY_AKEBI96=${TTY_AKEBI96}
+      - TTY_96BOARD=${TTY_96BOARD}
+    # We need the privilege for NFS server
     privileged: true
     ports:
       - "69:69/udp"    # tftp
@@ -63,7 +68,8 @@ services:
       - /boot:/boot
       - /lib/modules:/lib/modules
     devices:
-      - /dev/ttyUSB0:/dev/tty.akebi96
+      - ${TTY_AKEBI96}:/dev/tty.akebi96
+      - ${TTY_96BOARD}:/dev/tty.96board
 
 # File Server (FTP/HTPP) to store artifacts (images, test templates...)
   fileserver:
