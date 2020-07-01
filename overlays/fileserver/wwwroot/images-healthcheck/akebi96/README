@@ -1,0 +1,3 @@
+rootfs: https://github.com/loicpoulain/micro-rootfs
+Image: Akebi96 Uniphier kernel
+

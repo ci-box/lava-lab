@@ -1,0 +1,47 @@
+device_type: akebi96
+job_name: akebi96 health check
+
+timeouts:
+  job:
+    minutes: 10
+  action:
+    minutes: 5
+  connection:
+    minutes: 2
+
+priority: medium
+visibility: public
+
+actions:
+- deploy:
+    timeout:
+      minutes: 4
+    to: tftp
+    kernel:
+      url: http://fileserver/images-healthcheck/akebi96/Image.gz
+      compression: gz
+      type: image
+    ramdisk:
+      url: http://fileserver/images-healthcheck/qemu/rootfs.cpio.gz
+      compression: gz
+    dtb:
+      url: http://fileserver/images-healthcheck/akebi96/uniphier-ld20-akebi96.dtb
+
+- boot:
+    method: u-boot
+    commands:
+    - dhcp
+    - ping {SERVER_IP}
+    - setenv serverip {SERVER_IP}
+    - tftpboot {KERNEL_ADDR} {KERNEL}
+    - tftpboot {RAMDISK_ADDR} {RAMDISK}
+    - tftpboot {DTB_ADDR} {DTB}
+    - setenv bootargs earlycon loglevel=15 rootwait rdinit=/sbin/init
+    - booti {KERNEL_ADDR} {RAMDISK_ADDR} {DTB_ADDR}
+    auto_login:
+      login_prompt: 'login:'
+      username: root
+    prompts:
+    - 'micro#'
+    timeout:
+      minutes: 5
