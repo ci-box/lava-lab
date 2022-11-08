@@ -11,7 +11,6 @@ services:
       service: lava-server
     build:
       args:
-        version: 2020.05
         admin_username: admin
         admin_password: password
         admin_token: "d0siRzClNHWNtUYJbpmjOPEyPp0QLCKqQtDGTftN"
@@ -35,7 +34,6 @@ services:
       service: lava-worker
     build:
       args:
-        version: 2020.05
         server: lava-server
     volumes:
       - /boot:/boot
@@ -75,7 +73,7 @@ services:
         version: lts
         admin_username: admin
         admin_password: password
-        extra_packages: "build-essential gcc-aarch64-linux-gnu bc ftp gettext-base"
+        extra_packages: "build-essential gcc-aarch64-linux-gnu bc ftp wget gettext-base"
         plugins: "git mailer git-parameter build-timeout publish-over-ftp"
     volumes:
       - ./overlays/jenkins/var/jenkins_home/jobs:/var/jenkins_home/jobs
