@@ -13,3 +13,6 @@
 [submodule "ci-box-squad"]
 	path = ci-box-squad
 	url = https://github.com/ci-box/ci-box-squad.git
+[submodule "ci-box-openembedded"]
+	path = ci-box-openembedded
+	url = git@github.com:ci-box/ci-box-openembedded.git
