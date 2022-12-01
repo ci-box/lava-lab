@@ -1,2 +1,3 @@
 jenkins/var/jenkins_home/jobs/*/*
 !jenkins/var/jenkins_home/jobs/*/config.xml
+!jenkins/var/jenkins_home/jobs/oe-build/workspace
