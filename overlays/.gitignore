@@ -1,0 +1,2 @@
+jenkins/var/jenkins_home/jobs/*/*
+!jenkins/var/jenkins_home/jobs/*/config.xml
