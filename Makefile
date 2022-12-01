@@ -1,3 +1,6 @@
+DOCKER_GID:=$(shell stat -c '%g' /var/run/docker.sock)
+export DOCKER_GID
+
 run:
 	docker-compose up --build
 

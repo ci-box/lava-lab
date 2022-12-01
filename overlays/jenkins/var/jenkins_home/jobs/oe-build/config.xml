@@ -1,0 +1,190 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>10</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@4.13.0">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://git.yoctoproject.org/git/poky</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>kirkstone</name>
+      </hudson.plugins.git.BranchSpec>
+      <hudson.plugins.git.BranchSpec>
+        <name>langdale</name>
+      </hudson.plugins.git.BranchSpec>
+      <hudson.plugins.git.BranchSpec>
+        <name>master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="empty-list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.LocalBranch/>
+      <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+        <relativeTargetDir>oe-workspace/poky</relativeTargetDir>
+      </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+    </extensions>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.SCMTrigger>
+      <spec>H 2 * * *</spec>
+      <ignorePostCommitHooks>false</ignorePostCommitHooks>
+    </hudson.triggers.SCMTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>export BRANCH=&quot;$GIT_LOCAL_BRANCH&quot;
+OE_WORKSPACE=$(mount | grep oe-workspace | awk &apos;{print $3}&apos;)
+JENKINS_DEPLOY_DIR=&quot;$WORKSPACE/images/$BRANCH&quot;
+KAS_DEFAULT_CONFIG=&quot;$OE_WORKSPACE/.config.yaml&quot;
+
+prepare_config() {
+    KAS_POKY_TEMPLATE=&quot;$OE_WORKSPACE/kas-poky-qemuarm64-template.yml&quot;
+
+    # Replaces branch names with correct ones in build template.
+    # meta-clang layer doesn&apos;t have langdale branch yet, so it
+    # requires special treatment.
+    if [ &quot;$BRANCH&quot; = &quot;langdale&quot; ]; then
+        export META_CLANG_BRANCH=&quot;master&quot;
+    else
+        export META_CLANG_BRANCH=&quot;$BRANCH&quot;
+    fi
+    envsubst &apos;$BRANCH,$META_CLANG_BRANCH&apos; &lt; &quot;$KAS_POKY_TEMPLATE&quot; &gt; &quot;$KAS_DEFAULT_CONFIG&quot;
+}
+
+build_in_docker() {
+    OE_WORKSPACE_VOLUME=$(docker volume ls | grep oe-workspace | awk &apos;{print $2}&apos;)
+    OE_DOWNLOADS_VOLUME=$(docker volume ls | grep oe-downloads | awk &apos;{print $2}&apos;)
+    DOCKER_HOME=/builder
+
+    # Always check if new version of KAS build container is available
+    docker build --pull -t oe-builder:latest - &lt; &quot;$OE_WORKSPACE&quot;/Dockerfile
+    # Limit number of CPUs available to docker to 80%, so host can
+    # perform other tasks (like testing in LAVA)
+    docker run \
+        -e USER_ID=$(id -u $USER) \
+        -v &quot;$OE_WORKSPACE_VOLUME&quot;:$DOCKER_HOME \
+        -v &quot;$OE_DOWNLOADS_VOLUME&quot;:$DOCKER_HOME/downloads \
+        --cpuset-cpus 0-$(($(nproc) *4/5)) \
+        oe-builder build --update
+}
+
+store_images_in_workspace() {
+    OE_DEPLOY_DIR=&quot;$OE_WORKSPACE/build/tmp/deploy/images/qemuarm64&quot;
+    ROOT_FS=&quot;core-image-minimal-qemuarm64.ext4&quot;
+    IMAGE=&quot;Image-qemuarm64.bin&quot;
+
+    mkdir -p &quot;$JENKINS_DEPLOY_DIR&quot;
+    # Use gzip to compress the images, so LAVA can decompress it during download
+    gzip -fc &quot;$OE_DEPLOY_DIR/$ROOT_FS&quot; &gt; &quot;$JENKINS_DEPLOY_DIR/$ROOT_FS.gz&quot;
+    gzip -fc &quot;$OE_DEPLOY_DIR/$IMAGE&quot; &gt; &quot;$JENKINS_DEPLOY_DIR/$IMAGE.gz&quot;
+    echo &quot;${BRANCH}_$(echo &quot;$GIT_COMMIT&quot; | cut -c1-7)&quot; &gt; &quot;$JENKINS_DEPLOY_DIR&quot;/poky.version
+}
+
+clean_oe_build() {
+    # Remove OE build dir as sstate-cache takes care of
+    # accelerating next builds
+    rm -rf &quot;$OE_WORKSPACE/build&quot; || true
+    # Remove build config
+    rm -f &quot;$KAS_DEFAULT_CONFIG&quot;
+}
+
+clean_stored_images() {
+    # Remove images stored from previous build so we don&apos;t
+    # push artifacts if build failed
+    rm -rf &quot;$JENKINS_DEPLOY_DIR&quot;
+}
+
+clean_sstate_cache() {
+    # Remove sstate-cache items not used for over than 14 days
+    find &quot;$OE_WORKSPACE/sstate-cache&quot; -atime +14 -exec rm {} +
+}
+
+trap clean_oe_build EXIT
+
+clean_stored_images
+clean_oe_build
+prepare_config
+build_in_docker
+clean_sstate_cache
+store_images_in_workspace</command>
+      <configuredLocalRules/>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Push OE images to artifact server
+FILESERVER=fileserver
+ftp-upload \
+    --host $FILESERVER \
+    --dir openembedded/&quot;$GIT_LOCAL_BRANCH&quot; \
+    images/&quot;$GIT_LOCAL_BRANCH&quot;/*</command>
+      <configuredLocalRules/>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Submit for testing
+SQUAD_SERVER=squad
+SQUAD_BACKEND=lava.server
+SQUAD_TOKEN=2d703e793ea345efdbab52d95fe33ec715bcc2d4
+SQUAD_GROUP=Linaro
+SQUAD_PROJECT=openembedded
+OE_WORKSPACE=$(mount | grep oe-workspace | awk &apos;{print $3}&apos;)
+LAVA_JOB_TEMPLATE=&quot;$OE_WORKSPACE/lava-qemuarm64-poky-ptest-template.yml&quot;
+
+export BRANCH=&quot;$GIT_LOCAL_BRANCH&quot;
+VERSION=&quot;$(cat &quot;$WORKSPACE/images/$BRANCH/poky.version&quot;)&quot;
+
+# Schedule lava job for packages separately, so they
+# can run in parallel on multiple DUTs
+export PACKAGES_TO_TEST=&quot;bcc bpftrace&quot;
+for package in $PACKAGES_TO_TEST; do
+    export TESTS=&quot;$package&quot;
+    LAVA_JOB_DEFINITION=$(envsubst &apos;$BRANCH,$TESTS&apos; &lt; $LAVA_JOB_TEMPLATE)
+    # Submit to squad
+    curl \
+        --header &quot;Auth-Token: ${SQUAD_TOKEN}&quot; \
+        --form backend=${SQUAD_BACKEND} \
+        --form definition=&quot;${LAVA_JOB_DEFINITION}&quot; \
+        http://${SQUAD_SERVER}/api/submitjob/${SQUAD_GROUP}/${SQUAD_PROJECT}/&quot;${VERSION}&quot;/jenkins
+done</command>
+      <configuredLocalRules/>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>images/${GIT_LOCAL_BRANCH}/*</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+      <followSymlinks>false</followSymlinks>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.build__timeout.BuildTimeoutWrapper plugin="build-timeout@1.24">
+      <strategy class="hudson.plugins.build_timeout.impl.NoActivityTimeOutStrategy">
+        <timeoutSecondsString>800</timeoutSecondsString>
+      </strategy>
+      <operationList/>
+    </hudson.plugins.build__timeout.BuildTimeoutWrapper>
+  </buildWrappers>
+</project>

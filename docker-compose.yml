@@ -65,6 +65,7 @@ services:
   jenkins-server:
     container_name: jenkins-server
     hostname: jenkins-server
+    user: jenkins:${DOCKER_GID}
     extends:
       file: ./ci-box-jenkins/docker-compose.yml
       service: jenkins
@@ -73,10 +74,15 @@ services:
         version: lts
         admin_username: admin
         admin_password: password
-        extra_packages: "build-essential gcc-aarch64-linux-gnu bc ftp wget gettext-base"
+        extra_packages: "docker.io ftp-upload build-essential gcc-aarch64-linux-gnu bc sudo ftp wget gettext-base"
         plugins: "git mailer git-parameter build-timeout publish-over-ftp"
     volumes:
       - ./overlays/jenkins/var/jenkins_home/jobs:/var/jenkins_home/jobs
+      # Link docker.sock so openembedded build job can use host docker
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Link oe-workspace inside oe-build job workspace to avoid fetching poky
+      # repo twice, as Jenkins only supports pulling inside job workspace
+      - oe-workspace:/var/jenkins_home/jobs/oe-build/workspace/oe-workspace
 
 # SQUAD - Software Quality Dashboard
   squad:
@@ -91,10 +97,30 @@ services:
         admin_password: password
         admin_token: "2d703e793ea345efdbab52d95fe33ec715bcc2d4"
         group: "Linaro"
-        projects: "linux-mainline yocto-zeus"
+        projects: "linux-mainline openembedded"
         # Lava test execution backend
         lava_server: lava.server
         lava_username: admin
         lava_token: "d0siRzClNHWNtUYJbpmjOPEyPp0QLCKqQtDGTftN"
     ports: # expose http to outside
       - "8080:80"
+
+# OpenEmbedded specific volumes needed to share build and downloads
+# directory with Jenkins and KAS docker containers
+#
+# NOTE: If you have already existing OE downloads directory, you can
+# symlink oe-downloads directory to it, or replace path below to speed
+# up first build.
+volumes:
+  oe-workspace:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ./ci-box-openembedded/oe-workspace
+  oe-downloads:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ./ci-box-openembedded/oe-downloads
